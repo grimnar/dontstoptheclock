@@ -1,0 +1,23 @@
+@font-face { font-family: Sen; src: url('fonts/Sen-Regular.ttf'); }
+
+html, body {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: "Sen";
+  background-color: #151515;
+}
+
+h1 {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 99;
+  color: #E6E6E6;
+  text-align: center;
+  font-size: 6vw;
+  mix-blend-mode: hard-light;
+}

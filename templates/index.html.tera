@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Rocket Rooms</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" charset="utf-8" defer></script>
+  </head>
+  <body>
+
+    <div id="main">
+      <h1 class="time">DON'T STOP THE CLOCK!
+		</br>
+          <span onclick="stop_the_clock()" id="time"></span>
+		</br>
+		since it was stopped
+      </h1>
+    </div>
+	<div id="timestamps">
+		{% for ts in timestamps %}
+		<input class="last-timestamps" id={{ ts.id }} type=hidden value={{ ts.last_stop_ts }}>
+		{% endfor %}
+	</div>
+  </body>
+</html>
