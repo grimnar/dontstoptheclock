@@ -13,11 +13,11 @@ pub type TimeStamps<'r> = &'r State<TimeStampList>;
 pub struct TimeStamp { 
     pub id: u64,
     // UTC timestamp
-    pub last_stop_ts: u64 
+    pub last_stop_ts: i64 
 }
 
 impl TimeStamp {
-    pub fn new(id: u64, last_stop_ts: u64) -> Self {
+    pub fn new(id: u64, last_stop_ts: i64) -> Self {
         TimeStamp{id:id, last_stop_ts:last_stop_ts}
     }
 }
@@ -32,13 +32,13 @@ pub struct RingBuffer {
 }
 
 impl RingBuffer {
-    pub fn new(capacity: usize, first: u64) -> Self {
+    pub fn new(capacity: usize, first: i64) -> Self {
         let mut result = RingBuffer{buf: VecDeque::new(), capacity: capacity, max_id: 0, index: 0};
         result.push(first);
         result
     }
 
-    pub fn push(&mut self, value: u64) {
+    pub fn push(&mut self, value: i64) {
         while self.buf.len() > self.capacity - 1 {
             self.buf.pop_front();
         }

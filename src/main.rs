@@ -51,7 +51,7 @@ async fn events(queue: &State<Sender<TimeStamp>>, mut end: Shutdown) -> EventStr
 }
 
 #[rocket::get("/stop/<ts>")]
-async fn stop(ts: u64, queue: &State<Sender<TimeStamp>>, list: TimeStamps<'_>) {
+async fn stop(ts: i64, queue: &State<Sender<TimeStamp>>, list: TimeStamps<'_>) {
     let mut list = list.lock().await;
     list.push(ts);
     let _res = queue.send(list.last_item());
@@ -61,10 +61,11 @@ async fn stop(ts: u64, queue: &State<Sender<TimeStamp>>, list: TimeStamps<'_>) {
 
 #[rocket::launch]
 fn rocket() -> _ {
+    let now = Utc::now().timestamp();
     rocket::build()
         .mount("/", FileServer::from(relative!("templates/static")))
         .mount("/", rocket::routes![root, last, stop, events])
         .manage(channel::<TimeStamp>(1024).0)
-        .manage(TimeStampList::new(RingBuffer::new(5, 1662921288)))
+        .manage(TimeStampList::new(RingBuffer::new(5, now)))
         .attach(Template::fairing())
 }
