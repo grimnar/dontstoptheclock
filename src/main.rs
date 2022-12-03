@@ -12,16 +12,16 @@ use rocket::response::stream::{EventStream, Event};
 use rocket::tokio::select;
 use rocket::tokio::sync::broadcast::{channel, Sender, error::RecvError};
 
-use rocket_dyn_templates::{Template, context};
+// use rocket_dyn_templates::{Template, context};
 
 use crate::models::{TimeStamp, RingBuffer, TimeStamps, TimeStampList};
 
 
-#[rocket::get("/")]
-async fn root(list: TimeStamps<'_>) -> Template {
-    let list = list.lock().await;
-    Template::render("index", context! {timestamps: list.buf.clone()})
-}
+// #[rocket::get("/")]
+// async fn root(list: TimeStamps<'_>) -> Template {
+//     let list = list.lock().await;
+//     Template::render("index", context! {timestamps: list.buf.clone()})
+// }
 
 
 #[rocket::get("/last")]
@@ -32,9 +32,13 @@ async fn last(list: TimeStamps<'_>) -> Option<Json<TimeStamp>> {
 
 
 #[rocket::get("/stop_events")]
-async fn events(queue: &State<Sender<TimeStamp>>, mut end: Shutdown) -> EventStream![] {
+async fn events(queue: &State<Sender<TimeStamp>>, list: TimeStamps<'_>, mut end: Shutdown) -> EventStream![] {
     let mut rx = queue.subscribe();
+    let list = list.lock().await;
+    let last_item = list.last_item().clone();
+    drop(list);
     EventStream! {
+        yield Event::json(&last_item);
         loop {
             let msg = select! {
                 msg = rx.recv() => match msg {
@@ -63,9 +67,11 @@ async fn stop(ts: i64, queue: &State<Sender<TimeStamp>>, list: TimeStamps<'_>) {
 fn rocket() -> _ {
     let now = Utc::now().timestamp();
     rocket::build()
-        .mount("/", FileServer::from(relative!("templates/static")))
-        .mount("/", rocket::routes![root, last, stop, events])
+        // .mount("/", FileServer::from(relative!("templates/static")))
+        // .mount("/", rocket::routes![root, last, stop, events])
+        .mount("/", FileServer::from(relative!("ui/dist")))
+        .mount("/", rocket::routes![last, stop, events])
         .manage(channel::<TimeStamp>(1024).0)
         .manage(TimeStampList::new(RingBuffer::new(5, now)))
-        .attach(Template::fairing())
+        // .attach(Template::fairing())
 }
